@@ -5,8 +5,10 @@ import Admin from '../src/pages/Admin'
 function App() {
   return (
     <div className="App">
+
       <Admin/>
       
+
     </div>
   )
 }
