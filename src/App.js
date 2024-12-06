@@ -1,12 +1,14 @@
 
 import './App.css';
+import Admin from '../src/pages/Admin'
 
 function App() {
   return (
     <div className="App">
-      hii
+      <Admin/>
+      
     </div>
-  );
+  )
 }
 
 export default App;
