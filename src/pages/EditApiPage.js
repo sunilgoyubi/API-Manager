@@ -62,6 +62,32 @@ const EditApiPage = () => {
     }));
   };
 
+  const handleEndpointChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedEndUris = [...formData.endUris];
+    updatedEndUris[index] = {
+      ...updatedEndUris[index],
+      [name]: value,
+    };
+    setFormData((prevData) => ({
+      ...prevData,
+      endUris: updatedEndUris,
+    }));
+  };
+
+  const handleAddEndpoint = () => {
+    const newEndpoint = {
+      endUri: "",
+      method: "",
+      bodyContent: "",
+      bodyType: "",
+    };
+    setFormData((prevData) => ({
+      ...prevData,
+      endUris: [...prevData.endUris, newEndpoint],
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken"); // Retrieve the token for PUT request
@@ -146,16 +172,9 @@ const EditApiPage = () => {
                   <input
                     type="text"
                     id={`endUri-${index}`}
-                    name={`endUri-${index}`}
+                    name="endUri"
                     value={endpoint.endUri}
-                    onChange={(e) => {
-                      const newEndUris = [...formData.endUris];
-                      newEndUris[index].endUri = e.target.value;
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        endUris: newEndUris,
-                      }));
-                    }}
+                    onChange={(e) => handleEndpointChange(index, e)}
                     className="mt-1 p-2 border rounded-md w-full"
                   />
                 </div>
@@ -167,16 +186,9 @@ const EditApiPage = () => {
                   <input
                     type="text"
                     id={`method-${index}`}
-                    name={`method-${index}`}
+                    name="method"
                     value={endpoint.method}
-                    onChange={(e) => {
-                      const newEndUris = [...formData.endUris];
-                      newEndUris[index].method = e.target.value;
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        endUris: newEndUris,
-                      }));
-                    }}
+                    onChange={(e) => handleEndpointChange(index, e)}
                     className="mt-1 p-2 border rounded-md w-full"
                   />
                 </div>
@@ -188,16 +200,9 @@ const EditApiPage = () => {
                   </label>
                   <textarea
                     id={`bodyContent-${index}`}
-                    name={`bodyContent-${index}`}
+                    name="bodyContent"
                     value={endpoint.bodyContent || ""}
-                    onChange={(e) => {
-                      const newEndUris = [...formData.endUris];
-                      newEndUris[index].bodyContent = e.target.value;
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        endUris: newEndUris,
-                      }));
-                    }}
+                    onChange={(e) => handleEndpointChange(index, e)}
                     className="mt-1 p-2 border rounded-md w-full"
                     rows="4"
                   />
@@ -210,21 +215,24 @@ const EditApiPage = () => {
                   <input
                     type="text"
                     id={`bodyType-${index}`}
-                    name={`bodyType-${index}`}
+                    name="bodyType"
                     value={endpoint.bodyType || ""}
-                    onChange={(e) => {
-                      const newEndUris = [...formData.endUris];
-                      newEndUris[index].bodyType = e.target.value;
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        endUris: newEndUris,
-                      }));
-                    }}
+                    onChange={(e) => handleEndpointChange(index, e)}
                     className="mt-1 p-2 border rounded-md w-full"
                   />
                 </div>
               </div>
             ))}
+          </div>
+
+          <div>
+            <button
+              type="button"
+              onClick={handleAddEndpoint}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg"
+            >
+              Add Endpoint
+            </button>
           </div>
 
           <div>
