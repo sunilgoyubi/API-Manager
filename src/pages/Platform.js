@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Box, ArrowRight, Edit, Link2 } from "lucide-react";
+import { Search, Box, ArrowRight,  Link2 } from "lucide-react";
 
 const Platform = () => {
   const [apis, setApis] = useState([]);
@@ -56,16 +56,14 @@ const Platform = () => {
     }
     acc[api.name].push(api);
     return acc;
+    
   }, {});
 
   const handleCardClick = (apiName) => {
     navigate(`/api-details/${apiName}`);
   };
 
-  const handleEditClick = (e, apiName) => {
-    e.stopPropagation();
-    navigate(`/edit-api/${apiName}`);
-  };
+  
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -151,11 +149,11 @@ const Platform = () => {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">
-                           Endpoint
-                        </span>
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">
+                        Endpoint {apiList[0].endUris.length}
+                      </span>
+                    </div>
                       
                       <ArrowRight 
                         className={`h-5 w-5 text-blue-500 transform transition-transform duration-200 ${
