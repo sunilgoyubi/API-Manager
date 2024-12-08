@@ -4,12 +4,13 @@ import { ChevronDown, ChevronUp, Copy, ExternalLink, Edit } from "lucide-react";
 
 const ApiDetails = () => {
   const { apiName } = useParams();
-  const navigate = useNavigate();  // Use navigate hook to navigate to the edit page
+  const navigate = useNavigate();
   const [allApis, setAllApis] = useState([]);
   const [apiDetails, setApiDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedApis, setExpandedApis] = useState({});
+  const [responses, setResponses] = useState({}); // State to store responses for each endpoint
 
   useEffect(() => {
     const fetchAllApis = async () => {
@@ -27,7 +28,6 @@ const ApiDetails = () => {
         }
 
         const data = await response.json();
-        console.log("Fetched data:", data);
         setAllApis(data);
       } catch (err) {
         setError(err.message);
@@ -76,7 +76,23 @@ const ApiDetails = () => {
   };
 
   const handleEditClick = (apiId) => {
-    navigate(`/admin/update/${apiId}`);  // Navigate to the edit page with the apiId
+    navigate(`/admin/update/${apiId}`); // Navigate to the edit page with the apiId
+  };
+
+  const handleRequest = async (endpoint, index) => {
+    try {
+      const url = apiDetails[0].baseUri + endpoint.endUri;
+      const response = await fetch(url, {
+        method: endpoint.method,
+        headers: endpoint.headers || {},
+        body: endpoint.method !== "GET" ? JSON.stringify(endpoint.bodyContent || {}) : null,
+      });
+
+      const data = await response.json();
+      setResponses((prev) => ({ ...prev, [index]: { success: true, data } }));
+    } catch (err) {
+      setResponses((prev) => ({ ...prev, [index]: { success: false, error: err.message } }));
+    }
   };
 
   if (loading) {
@@ -117,14 +133,14 @@ const ApiDetails = () => {
             </p>
           </div>
           <button
-            onClick={() => handleEditClick(apiDetails[0].id)}  // Pass apiId to the edit handler
+            onClick={() => handleEditClick(apiDetails[0].id)}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             <Edit className="w-5 h-5 mr-2" />
             Edit API
           </button>
         </div>
-  
+
         <div className="space-y-6">
           {apiDetails[0].endUris.map((endpoint, index) => (
             <div
@@ -153,7 +169,7 @@ const ApiDetails = () => {
                   <ChevronDown className="w-5 h-5 text-slate-400" />
                 )}
               </div>
-  
+
               {expandedApis[index] && (
                 <div className="px-6 py-4 border-t border-slate-100">
                   <div className="space-y-4">
@@ -172,7 +188,7 @@ const ApiDetails = () => {
                         </button>
                       </div>
                     </div>
-  
+
                     <div>
                       <h3 className="text-sm font-medium text-slate-700">Full URL</h3>
                       <div className="mt-1 flex items-center space-x-2">
@@ -197,54 +213,26 @@ const ApiDetails = () => {
                         </a>
                       </div>
                     </div>
-  
+
+                    {/* Request Button */}
                     <div>
-                      <h3 className="text-sm font-medium text-slate-700">Headers</h3>
-                      <div className="mt-2 overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-200">
-                          <thead className="bg-slate-50">
-                            <tr>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                Header
-                              </th>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                Value
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-slate-200">
-                            {Object.entries(endpoint.headers || {}).map(
-                              ([key, value], idx) => (
-                                <tr key={idx}>
-                                  <td className="px-4 py-2 text-sm font-mono text-slate-600">
-                                    {key}
-                                  </td>
-                                  <td className="px-4 py-2 text-sm font-mono text-slate-600">
-                                    {value}
-                                  </td>
-                                </tr>
-                              )
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
+                      <button
+                        onClick={() => handleRequest(endpoint, index)}
+                        className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
+                      >
+                        Test Request
+                      </button>
                     </div>
-  
-                    {endpoint.bodyContent && (
-                      <div>
-                        <h3 className="text-sm font-medium text-slate-700">Body Content</h3>
-                        <div className="mt-1 text-sm font-mono text-slate-600">
-                          <pre>{endpoint.bodyContent}</pre>
-                        </div>
-                      </div>
-                    )}
-  
-                    {endpoint.bodyType && (
-                      <div>
-                        <h3 className="text-sm font-medium text-slate-700">Body Type</h3>
-                        <div className="mt-1 text-sm font-mono text-slate-600">
-                          {endpoint.bodyType}
-                        </div>
+
+                    {/* Display Response */}
+                    {responses[index] && (
+                      <div className="mt-4">
+                        <h3 className="text-sm font-medium text-slate-700">Response</h3>
+                        <pre className="bg-slate-100 p-4 rounded text-sm text-slate-600">
+                          {responses[index].success
+                            ? JSON.stringify(responses[index].data, null, 2)
+                            : `Error: ${responses[index].error}`}
+                        </pre>
                       </div>
                     )}
                   </div>
