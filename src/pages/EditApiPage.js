@@ -88,6 +88,14 @@ const EditApiPage = () => {
     }));
   };
 
+  const handleDeleteEndpoint = (index) => {
+    const updatedEndUris = formData.endUris.filter((_, i) => i !== index); // Remove the endpoint at the given index
+    setFormData((prevData) => ({
+      ...prevData,
+      endUris: updatedEndUris,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken"); // Retrieve the token for PUT request
@@ -220,6 +228,17 @@ const EditApiPage = () => {
                     onChange={(e) => handleEndpointChange(index, e)}
                     className="mt-1 p-2 border rounded-md w-full"
                   />
+                </div>
+
+                {/* Delete Endpoint Button */}
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteEndpoint(index)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                  >
+                    Delete Endpoint
+                  </button>
                 </div>
               </div>
             ))}
