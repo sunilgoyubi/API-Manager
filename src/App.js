@@ -6,6 +6,7 @@ import Home from "./pages/Home.jsx";
 import './App.css';
 import Login from "./components/Login.jsx";
 import SignUp from "./components/SignUp.jsx";
+import ApiDetails from "./pages/ApiDetails.js";
 
 function App() {
   return (
@@ -24,6 +25,10 @@ function App() {
 
             {/* Platform Route */}
             <Route path="/platform" element={<Platform />} />
+
+          
+         <Route path="/api-details/:apiName" element={<ApiDetails />} />
+      
           </Routes>
         </div>
       </Router>
