@@ -6,21 +6,55 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [passwordVisible, setPasswordVisible] = useState(false); 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSignup = () => {
     navigate('/signup');
   };
 
   const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible); 
+    setPasswordVisible(!passwordVisible);
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Prevent form submission from reloading the page
+
+    try {
+      const response = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Login failed. Please check your credentials.');
+      }
+
+      const data = await response.json(); // Assuming the response has a JSON structure
+      const token = data.token; // Adjust based on your backend response structure
+
+      if (token) {
+        localStorage.setItem('authToken', token); // Store the token in localStorage
+        navigate('/admin'); // Navigate to a protected route after login
+      } else {
+        throw new Error('Token not found in the response.');
+      }
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-lg min-w-[350px] mx-auto text-center p-6 border border-gray-300 rounded-lg">
         <h2 className="text-2xl font-semibold mb-6">Login</h2>
-        <form>
+        {error && <div className="text-red-500 mb-4">{error}</div>}
+        <form onSubmit={handleLogin}>
           {/* Email Input */}
           <div className="mb-4">
             <label htmlFor="email" className="block text-left text-gray-700 mb-2">
@@ -34,6 +68,8 @@ const Login = () => {
                 name="email"
                 placeholder="Enter your email"
                 className="w-full px-3 py-2 border-none focus:outline-none"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -47,11 +83,13 @@ const Login = () => {
             <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
               <RiLockPasswordLine className="w-5 h-5 ml-2" />
               <input
-                type={passwordVisible ? 'text' : 'password'} 
+                type={passwordVisible ? 'text' : 'password'}
                 id="password"
                 name="password"
                 placeholder="Enter your password"
                 className="w-full px-3 py-2 border-none focus:outline-none"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <button
