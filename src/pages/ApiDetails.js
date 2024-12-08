@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ChevronDown, ChevronUp, Copy, ExternalLink } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+// import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ApiDetails = () => {
   const { apiName } = useParams();
@@ -81,21 +81,21 @@ const ApiDetails = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Alert variant="destructive" className="m-4">
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
+//   if (error) {
+//     return (
+//       <Alert variant="destructive" className="m-4">
+//         <AlertDescription>{error}</AlertDescription>
+//       </Alert>
+//     );
+//   }
 
-  if (apiDetails.length === 0) {
-    return (
-      <Alert className="m-4">
-        <AlertDescription>No API documentation available for "{apiName}"</AlertDescription>
-      </Alert>
-    );
-  }
+//   if (apiDetails.length === 0) {
+//     return (
+//       <Alert className="m-4">
+//         <AlertDescription>No API documentation available for "{apiName}"</AlertDescription>
+//       </Alert>
+//     );
+//   }
 
   return (
     <div className="min-h-screen bg-slate-50">
