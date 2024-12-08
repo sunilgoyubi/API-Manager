@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { ChevronDown, ChevronUp, Copy, ExternalLink } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ChevronDown, ChevronUp, Copy, ExternalLink, Edit } from "lucide-react";
 
 const ApiDetails = () => {
   const { apiName } = useParams();
+  const navigate = useNavigate();  // Use navigate hook to navigate to the edit page
   const [allApis, setAllApis] = useState([]);
   const [apiDetails, setApiDetails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,6 +75,10 @@ const ApiDetails = () => {
     return colors[method] || "bg-gray-500";
   };
 
+  const handleEditClick = (apiId) => {
+    navigate(`/admin/update/${apiId}`);  // Navigate to the edit page with the apiId
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slate-50">
@@ -101,14 +106,23 @@ const ApiDetails = () => {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">
-            API Documentation: {apiName}
-          </h1>
-          <p className="text-slate-600 mt-2">
-            {apiDetails[0].endUris.length} endpoint
-            {apiDetails[0].endUris.length !== 1 ? "s" : ""} available
-          </p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">
+              API Documentation: {apiName}
+            </h1>
+            <p className="text-slate-600 mt-2">
+              {apiDetails[0].endUris.length} endpoint
+              {apiDetails[0].endUris.length !== 1 ? "s" : ""} available
+            </p>
+          </div>
+          <button
+            onClick={() => handleEditClick(apiDetails[0].id)}  // Pass apiId to the edit handler
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            <Edit className="w-5 h-5 mr-2" />
+            Edit API
+          </button>
         </div>
   
         <div className="space-y-6">
@@ -242,5 +256,6 @@ const ApiDetails = () => {
       </div>
     </div>
   );
-}  
+};
+
 export default ApiDetails;

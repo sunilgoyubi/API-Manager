@@ -7,6 +7,7 @@ import './App.css';
 import Login from "./components/Login.jsx";
 import SignUp from "./components/SignUp.jsx";
 import ApiDetails from "./pages/ApiDetails.js";
+import EditApiPage from "./pages/EditApiPage.js";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           
          <Route path="/api-details/:apiName" element={<ApiDetails />} />
          <Route path="/home" element={<Home />} />
+         <Route path="/admin/update/:id" element={<EditApiPage />} />
       
           </Routes>
         </div>
