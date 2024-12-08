@@ -77,32 +77,8 @@ const Home = () => {
           </Link>
         </div>
 
-        {/* Features Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white/50 backdrop-blur-sm p-6 rounded-xl border border-slate-200">
-            <div className="p-2 bg-blue-50 rounded-lg w-fit mb-4">
-              <Database className="w-5 h-5 text-blue-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Centralized Management</h3>
-            <p className="text-slate-600">Manage all your APIs from a single dashboard with powerful controls</p>
-          </div>
-
-          <div className="bg-white/50 backdrop-blur-sm p-6 rounded-xl border border-slate-200">
-            <div className="p-2 bg-emerald-50 rounded-lg w-fit mb-4">
-              <Code className="w-5 h-5 text-emerald-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Interactive Documentation</h3>
-            <p className="text-slate-600">Explore and test APIs with our interactive documentation interface</p>
-          </div>
-
-          <div className="bg-white/50 backdrop-blur-sm p-6 rounded-xl border border-slate-200">
-            <div className="p-2 bg-purple-50 rounded-lg w-fit mb-4">
-              <Cloud className="w-5 h-5 text-purple-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Cloud Integration</h3>
-            <p className="text-slate-600">Seamlessly deploy and manage APIs across multiple environments</p>
-          </div>
-        </div>
+       
+        
       </div>
     </div>
   );

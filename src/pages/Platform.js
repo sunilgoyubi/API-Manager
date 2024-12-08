@@ -132,14 +132,14 @@ const Platform = () => {
                       <Box className="h-6 w-6 text-blue-500" />
                       <h2 className="text-xl font-semibold text-slate-900">{apiName}</h2>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    {/* <div className="flex items-center space-x-2">
                       <button
                         onClick={(e) => handleEditClick(e, apiName)}
                         className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                       >
                         <Edit className="h-4 w-4 text-slate-600" />
                       </button>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="mt-4 space-y-3">
@@ -153,7 +153,7 @@ const Platform = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">
-                          {apiList.length} Endpoint{apiList.length !== 1 ? 's' : ''}
+                           Endpoint
                         </span>
                       </div>
                       
