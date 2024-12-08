@@ -28,6 +28,7 @@ function App() {
 
           
          <Route path="/api-details/:apiName" element={<ApiDetails />} />
+         <Route path="/home" element={<Home />} />
       
           </Routes>
         </div>

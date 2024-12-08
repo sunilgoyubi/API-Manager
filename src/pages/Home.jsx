@@ -1,28 +1,31 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   return (
-    <div className=' flex flex-col items-center justify-center min-h-screen bg-gray-100'>
-      <h1 className='text-3xl font-bold mb-8'>API manager</h1>
-      <div className='flex gap-6'>
-        {/* admin card */}
-        <Link to = "/admin">
-        <div className='bg-blue-100 text-black w-60 h-40 flex items-center justify-center rounded-lg shadow-md hover:bg-blue-200 transition durtion-300'>
-          <p className=''>Admin</p>
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">API Manager</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl">
+        
+        {/* Admin card */}
+        <Link to="/admin">
+          <div className="bg-blue-600 text-white w-full h-48 flex flex-col items-center justify-center rounded-lg shadow-lg hover:shadow-2xl hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-105">
+            <h2 className="text-2xl font-semibold">Admin</h2>
+            <p className="mt-2 text-lg">Manage APIs and Users</p>
+          </div>
         </Link>
 
-        {/* platform card */}
-        <Link to = "">
-        <div>
-          <p>Platform</p>
-        </div>
+        {/* Platform card */}
+        <Link to="/platform">
+          <div className="bg-green-600 text-white w-full h-48 flex flex-col items-center justify-center rounded-lg shadow-lg hover:shadow-2xl hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105">
+            <h2 className="text-2xl font-semibold">Platform</h2>
+            <p className="mt-2 text-lg">Explore APIs</p>
+          </div>
         </Link>
 
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

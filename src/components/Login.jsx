@@ -40,7 +40,7 @@ const Login = () => {
 
       if (token) {
         localStorage.setItem('authToken', token); // Store the token in localStorage
-        navigate('/admin'); // Navigate to a protected route after login
+        navigate('/home'); // Navigate to a protected route after login
       } else {
         throw new Error('Token not found in the response.');
       }
