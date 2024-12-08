@@ -7,7 +7,6 @@ const Admin = () => {
     baseUrl: "",
     endpoints: [
       {
-        id: Date.now(),
         expanded: true,
         endpoint: "",
         method: "GET",
@@ -15,61 +14,63 @@ const Admin = () => {
         bodyContent: "",
         headers: [],
         contentType: "application/json",
-      }
-    ]
+      },
+    ],
   });
 
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
   const handleMainFieldChange = (field, value) => {
-    setApiData(prev => ({
+    setApiData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
-  const handleEndpointChange = (id, field, value) => {
-    setApiData(prev => ({
+  const handleEndpointChange = (index, field, value) => {
+    setApiData((prev) => ({
       ...prev,
-      endpoints: prev.endpoints.map(endpoint =>
-        endpoint.id === id ? { ...endpoint, [field]: value } : endpoint
-      )
+      endpoints: prev.endpoints.map((endpoint, i) =>
+        i === index ? { ...endpoint, [field]: value } : endpoint
+      ),
     }));
   };
 
-  const handleHeaderChange = (endpointId, headerIndex, field, value) => {
-    setApiData(prev => ({
+  const handleHeaderChange = (endpointIndex, headerIndex, field, value) => {
+    setApiData((prev) => ({
       ...prev,
-      endpoints: prev.endpoints.map(endpoint => {
-        if (endpoint.id === endpointId) {
+      endpoints: prev.endpoints.map((endpoint, i) => {
+        if (i === endpointIndex) {
           const newHeaders = [...endpoint.headers];
-          newHeaders[headerIndex] = { ...newHeaders[headerIndex], [field]: value };
+          newHeaders[headerIndex] = {
+            ...newHeaders[headerIndex],
+            [field]: value,
+          };
           return { ...endpoint, headers: newHeaders };
         }
         return endpoint;
-      })
+      }),
     }));
   };
 
-  const addHeader = (endpointId) => {
-    setApiData(prev => ({
+  const addHeader = (endpointIndex) => {
+    setApiData((prev) => ({
       ...prev,
-      endpoints: prev.endpoints.map(endpoint =>
-        endpoint.id === endpointId
+      endpoints: prev.endpoints.map((endpoint, i) =>
+        i === endpointIndex
           ? { ...endpoint, headers: [...endpoint.headers, { key: "", value: "" }] }
           : endpoint
-      )
+      ),
     }));
   };
 
   const addEndpoint = () => {
-    setApiData(prev => ({
+    setApiData((prev) => ({
       ...prev,
       endpoints: [
         ...prev.endpoints,
         {
-          id: Date.now(),
           expanded: true,
           endpoint: "",
           method: "GET",
@@ -77,24 +78,24 @@ const Admin = () => {
           bodyContent: "",
           headers: [],
           contentType: "application/json",
-        }
-      ]
+        },
+      ],
     }));
   };
 
-  const removeEndpoint = (id) => {
-    setApiData(prev => ({
+  const removeEndpoint = (index) => {
+    setApiData((prev) => ({
       ...prev,
-      endpoints: prev.endpoints.filter(endpoint => endpoint.id !== id)
+      endpoints: prev.endpoints.filter((_, i) => i !== index),
     }));
   };
 
-  const toggleEndpoint = (id) => {
-    setApiData(prev => ({
+  const toggleEndpoint = (index) => {
+    setApiData((prev) => ({
       ...prev,
-      endpoints: prev.endpoints.map(endpoint =>
-        endpoint.id === id ? { ...endpoint, expanded: !endpoint.expanded } : endpoint
-      )
+      endpoints: prev.endpoints.map((endpoint, i) =>
+        i === index ? { ...endpoint, expanded: !endpoint.expanded } : endpoint
+      ),
     }));
   };
 
@@ -102,54 +103,60 @@ const Admin = () => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
-
+  
     const token = localStorage.getItem("authToken");
     if (!token) {
       setError("Unauthorized: No token found. Please login first.");
       return;
     }
-
+  
+    // Validate the form data before sending
+    if (!apiData.name || !apiData.baseUrl) {
+      setError("API Name and Base URL are required.");
+      return;
+    }
+  
     try {
-      const responses = await Promise.all(
-        apiData.endpoints.map(endpoint => {
-          const payload = {
-            name: apiData.name,
-            baseUrl: apiData.baseUrl,
-            endpoint: endpoint.endpoint,
-            method: endpoint.method,
-            headers: endpoint.headers.reduce((acc, header) => {
-              if (header.key && header.value) {
-                acc[header.key] = header.value;
-              }
-              return acc;
-            }, {}),
-            bodyType: endpoint.bodyType,
-            bodyContent: endpoint.bodyContent,
-            contentType: endpoint.contentType,
-          };
-
-          return fetch("http://localhost:8080/admin/create", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(payload),
-          });
-        })
-      );
-
-      const hasError = responses.some(response => !response.ok);
-      if (hasError) {
-        throw new Error("Failed to create one or more APIs.");
+      // Prepare the payload with the correct structure
+      const payload = {
+        name: apiData.name,
+        baseUri: apiData.baseUrl,
+        endUris: apiData.endpoints.map(({ expanded, ...endpoint }) => ({
+          endUri: endpoint.endpoint,
+          method: endpoint.method,
+          headers: endpoint.headers.reduce((acc, header) => {
+            if (header.key && header.value) {
+              acc[header.key] = header.value;
+            }
+            return acc;
+          }, {}),
+          bodyType: endpoint.bodyType || null,
+          contentType: endpoint.contentType || "application/json",
+          bodyContent: endpoint.bodyContent || null,
+        }))
+      };
+  
+      console.log("Payload being sent:", payload);
+  
+      const response = await fetch("http://localhost:8080/admin/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to create API.");
       }
-
-      setSuccessMessage("All APIs successfully created!");
+  
+      setSuccessMessage("API successfully created!");
     } catch (err) {
-      setError(err.message || "An error occurred while creating the APIs.");
+      setError(err.message || "An error occurred while creating the API.");
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -157,17 +164,12 @@ const Admin = () => {
           <h1 className="text-3xl font-bold text-slate-900">API Manager</h1>
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>
-        )}
+        {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
         {successMessage && (
-          <div className="bg-green-50 text-green-600 p-4 rounded-lg mb-6">
-            {successMessage}
-          </div>
+          <div className="bg-green-50 text-green-600 p-4 rounded-lg mb-6">{successMessage}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Common Fields */}
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -197,7 +199,6 @@ const Admin = () => {
             </div>
           </div>
 
-          {/* Endpoints Section */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold text-slate-900">Endpoints</h2>
@@ -213,7 +214,7 @@ const Admin = () => {
 
             {apiData.endpoints.map((endpoint, index) => (
               <div
-                key={endpoint.id}
+                key={index}
                 className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden"
               >
                 <div className="flex items-center justify-between p-4 bg-slate-50 border-b border-slate-200">
@@ -223,7 +224,7 @@ const Admin = () => {
                     </span>
                     <button
                       type="button"
-                      onClick={() => toggleEndpoint(endpoint.id)}
+                      onClick={() => toggleEndpoint(index)}
                       className="text-slate-500 hover:text-slate-700"
                     >
                       {endpoint.expanded ? (
@@ -236,7 +237,7 @@ const Admin = () => {
                   {apiData.endpoints.length > 1 && (
                     <button
                       type="button"
-                      onClick={() => removeEndpoint(endpoint.id)}
+                      onClick={() => removeEndpoint(index)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <Trash2 className="w-5 h-5" />
@@ -246,7 +247,6 @@ const Admin = () => {
 
                 {endpoint.expanded && (
                   <div className="p-6 space-y-6">
-                    {/* Endpoint Path */}
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">
                         Endpoint Path
@@ -255,23 +255,21 @@ const Admin = () => {
                         type="text"
                         value={endpoint.endpoint}
                         onChange={(e) =>
-                          handleEndpointChange(endpoint.id, "endpoint", e.target.value)
+                          handleEndpointChange(index, "endpoint", e.target.value)
                         }
                         className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="/api/v1/resource"
-                        required
                       />
                     </div>
 
-                    {/* Method */}
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Method
+                        HTTP Method
                       </label>
                       <select
                         value={endpoint.method}
                         onChange={(e) =>
-                          handleEndpointChange(endpoint.id, "method", e.target.value)
+                          handleEndpointChange(index, "method", e.target.value)
                         }
                         className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
@@ -282,135 +280,91 @@ const Admin = () => {
                       </select>
                     </div>
 
-                    {/* Headers */}
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Headers
+                        Body Type
                       </label>
-                      {endpoint.headers.map((header, headerIndex) => (
-                        <div key={headerIndex} className="flex gap-4 mb-2">
+                      <select
+                        value={endpoint.bodyType}
+                        onChange={(e) =>
+                          handleEndpointChange(index, "bodyType", e.target.value)
+                        }
+                        className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Body Type</option>
+                        <option value="raw">Raw</option>
+                        <option value="form">Form</option>
+                      </select>
+                    </div>
+
+                    {endpoint.bodyType && (
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                          Body Content
+                        </label>
+                        <textarea
+                          value={endpoint.bodyContent}
+                          onChange={(e) =>
+                            handleEndpointChange(index, "bodyContent", e.target.value)
+                          }
+                          className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter body content"
+                        />
+                      </div>
+                    )}
+
+                    {endpoint.headers.map((header, headerIndex) => (
+                      <div key={headerIndex} className="flex space-x-4">
+                        <div className="w-full">
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Header Key
+                          </label>
                           <input
                             type="text"
                             value={header.key}
                             onChange={(e) =>
-                              handleHeaderChange(
-                                endpoint.id,
-                                headerIndex,
-                                "key",
-                                e.target.value
-                              )
+                              handleHeaderChange(index, headerIndex, "key", e.target.value)
                             }
-                            className="w-1/2 p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Header Key"
+                            className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Header key"
                           />
+                        </div>
+
+                        <div className="w-full">
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Header Value
+                          </label>
                           <input
                             type="text"
                             value={header.value}
                             onChange={(e) =>
-                              handleHeaderChange(
-                                endpoint.id,
-                                headerIndex,
-                                "value",
-                                e.target.value
-                              )
+                              handleHeaderChange(index, headerIndex, "value", e.target.value)
                             }
-                            className="w-1/2 p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Header Value"
+                            className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Header value"
                           />
                         </div>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => addHeader(endpoint.id)}
-                        className="text-blue-500 hover:text-blue-700 text-sm font-medium"
-                      >
-                        + Add Header
-                      </button>
-                    </div>
-
-                    {/* Body Type and Content */}
-                    {(endpoint.method === "POST" || endpoint.method === "PUT") && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Content Type
-                          </label>
-                          <select
-                            value={endpoint.contentType}
-                            onChange={(e) =>
-                              handleEndpointChange(
-                                endpoint.id,
-                                "contentType",
-                                e.target.value
-                              )
-                            }
-                            className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            <option value="application/json">application/json</option>
-                            <option value="application/x-www-form-urlencoded">
-                              application/x-www-form-urlencoded
-                            </option>
-                            <option value="multipart/form-data">
-                              multipart/form-data
-                            </option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Body Type
-                          </label>
-                          <select
-                            value={endpoint.bodyType}
-                            onChange={(e) =>
-                              handleEndpointChange(
-                                endpoint.id,
-                                "bodyType",
-                                e.target.value
-                              )
-                            }
-                            className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            <option value="">Select Body Type</option>
-                            <option value="raw">Raw</option>
-                            <option value="form">Form</option>
-                          </select>
-                        </div>
-
-                        {endpoint.bodyType && (
-                          <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                              Body Content
-                            </label>
-                            <textarea
-                              value={endpoint.bodyContent}
-                              onChange={(e) =>
-                                handleEndpointChange(
-                                  endpoint.id,
-                                  "bodyContent",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              rows="4"
-                              placeholder="Enter JSON or key-value pairs"
-                            />
-                          </div>
-                        )}
                       </div>
-                    )}
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => addHeader(index)}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      Add Header
+                    </button>
                   </div>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="flex justify-end pt-6">
+          <div className="flex justify-center items-center mt-8">
             <button
               type="submit"
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
+              className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition"
             >
-              Generate APIs
+              Submit API Data
             </button>
           </div>
         </form>

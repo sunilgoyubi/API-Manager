@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ChevronDown, ChevronUp, Copy, ExternalLink } from "lucide-react";
-// import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ApiDetails = () => {
   const { apiName } = useParams();
@@ -27,6 +26,7 @@ const ApiDetails = () => {
         }
 
         const data = await response.json();
+        console.log("Fetched data:", data);
         setAllApis(data);
       } catch (err) {
         setError(err.message);
@@ -42,10 +42,11 @@ const ApiDetails = () => {
     if (allApis.length > 0) {
       const filteredApis = allApis.filter((api) => api.name === apiName);
       setApiDetails(filteredApis);
-      // Initialize expanded state for all APIs
+
+      // Initialize expanded state for all endpoints
       const initialExpandedState = {};
-      filteredApis.forEach((_, index) => {
-        initialExpandedState[index] = true;
+      filteredApis.forEach((api, index) => {
+        initialExpandedState[index] = true; // Expand all by default
       });
       setExpandedApis(initialExpandedState);
     }
@@ -81,21 +82,21 @@ const ApiDetails = () => {
     );
   }
 
-//   if (error) {
-//     return (
-//       <Alert variant="destructive" className="m-4">
-//         <AlertDescription>{error}</AlertDescription>
-//       </Alert>
-//     );
-//   }
+  if (error) {
+    return (
+      <div className="text-red-600 text-center p-4 bg-red-50 rounded-lg">
+        {error}
+      </div>
+    );
+  }
 
-//   if (apiDetails.length === 0) {
-//     return (
-//       <Alert className="m-4">
-//         <AlertDescription>No API documentation available for "{apiName}"</AlertDescription>
-//       </Alert>
-//     );
-//   }
+  if (apiDetails.length === 0) {
+    return (
+      <div className="text-slate-600 text-center p-4 bg-slate-50 rounded-lg">
+        No API documentation available for "{apiName}"
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -105,14 +106,15 @@ const ApiDetails = () => {
             API Documentation: {apiName}
           </h1>
           <p className="text-slate-600 mt-2">
-            {apiDetails.length} endpoint{apiDetails.length !== 1 ? "s" : ""} available
+            {apiDetails[0].endUris.length} endpoint
+            {apiDetails[0].endUris.length !== 1 ? "s" : ""} available
           </p>
         </div>
-
+  
         <div className="space-y-6">
-          {apiDetails.map((api, index) => (
+          {apiDetails[0].endUris.map((endpoint, index) => (
             <div
-              key={index}
+              key={endpoint.id}
               className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden"
             >
               <div
@@ -122,13 +124,13 @@ const ApiDetails = () => {
                 <div className="flex items-center space-x-4">
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium text-white ${getMethodColor(
-                      api.method
+                      endpoint.method
                     )}`}
                   >
-                    {api.method}
+                    {endpoint.method}
                   </span>
                   <span className="font-mono text-sm text-slate-700">
-                    {api.endUri}
+                    {endpoint.endUri}
                   </span>
                 </div>
                 {expandedApis[index] ? (
@@ -137,7 +139,7 @@ const ApiDetails = () => {
                   <ChevronDown className="w-5 h-5 text-slate-400" />
                 )}
               </div>
-
+  
               {expandedApis[index] && (
                 <div className="px-6 py-4 border-t border-slate-100">
                   <div className="space-y-4">
@@ -145,10 +147,10 @@ const ApiDetails = () => {
                       <h3 className="text-sm font-medium text-slate-700">Base URL</h3>
                       <div className="mt-1 flex items-center space-x-2">
                         <code className="bg-slate-100 px-2 py-1 rounded text-sm font-mono">
-                          {api.baseUri}
+                          {apiDetails[0].baseUri}
                         </code>
                         <button
-                          onClick={() => copyToClipboard(api.baseUri)}
+                          onClick={() => copyToClipboard(apiDetails[0].baseUri)}
                           className="p-1 hover:bg-slate-100 rounded"
                           title="Copy to clipboard"
                         >
@@ -156,22 +158,22 @@ const ApiDetails = () => {
                         </button>
                       </div>
                     </div>
-
+  
                     <div>
                       <h3 className="text-sm font-medium text-slate-700">Full URL</h3>
                       <div className="mt-1 flex items-center space-x-2">
                         <code className="bg-slate-100 px-2 py-1 rounded text-sm font-mono">
-                          {api.baseUri + api.endUri}
+                          {apiDetails[0].baseUri + endpoint.endUri}
                         </code>
                         <button
-                          onClick={() => copyToClipboard(api.baseUri + api.endUri)}
+                          onClick={() => copyToClipboard(apiDetails[0].baseUri + endpoint.endUri)}
                           className="p-1 hover:bg-slate-100 rounded"
                           title="Copy to clipboard"
                         >
                           <Copy className="w-4 h-4 text-slate-500" />
                         </button>
                         <a
-                          href={api.baseUri + api.endUri}
+                          href={apiDetails[0].baseUri + endpoint.endUri}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-1 hover:bg-slate-100 rounded"
@@ -181,7 +183,7 @@ const ApiDetails = () => {
                         </a>
                       </div>
                     </div>
-
+  
                     <div>
                       <h3 className="text-sm font-medium text-slate-700">Headers</h3>
                       <div className="mt-2 overflow-x-auto">
@@ -197,20 +199,40 @@ const ApiDetails = () => {
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-slate-200">
-                            {Object.entries(api.headers).map(([key, value], idx) => (
-                              <tr key={idx}>
-                                <td className="px-4 py-2 text-sm font-mono text-slate-600">
-                                  {key}
-                                </td>
-                                <td className="px-4 py-2 text-sm font-mono text-slate-600">
-                                  {value}
-                                </td>
-                              </tr>
-                            ))}
+                            {Object.entries(endpoint.headers || {}).map(
+                              ([key, value], idx) => (
+                                <tr key={idx}>
+                                  <td className="px-4 py-2 text-sm font-mono text-slate-600">
+                                    {key}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm font-mono text-slate-600">
+                                    {value}
+                                  </td>
+                                </tr>
+                              )
+                            )}
                           </tbody>
                         </table>
                       </div>
                     </div>
+  
+                    {endpoint.bodyContent && (
+                      <div>
+                        <h3 className="text-sm font-medium text-slate-700">Body Content</h3>
+                        <div className="mt-1 text-sm font-mono text-slate-600">
+                          <pre>{endpoint.bodyContent}</pre>
+                        </div>
+                      </div>
+                    )}
+  
+                    {endpoint.bodyType && (
+                      <div>
+                        <h3 className="text-sm font-medium text-slate-700">Body Type</h3>
+                        <div className="mt-1 text-sm font-mono text-slate-600">
+                          {endpoint.bodyType}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -220,6 +242,5 @@ const ApiDetails = () => {
       </div>
     </div>
   );
-};
-
+}  
 export default ApiDetails;

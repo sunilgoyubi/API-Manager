@@ -19,7 +19,7 @@ const Platform = () => {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Add token for authentication
           },
         });
-
+       
         if (!response.ok) {
           throw new Error("Failed to fetch API data");
         }
