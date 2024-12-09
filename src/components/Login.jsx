@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineMail } from 'react-icons/md';
 import { RiLockPasswordLine } from 'react-icons/ri';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const navigate = useNavigate();
