@@ -28,6 +28,7 @@ const ApiDetails = () => {
         }
 
         const data = await response.json();
+        console.log(data);
         setAllApis(data);
       } catch (err) {
         setError(err.message);
