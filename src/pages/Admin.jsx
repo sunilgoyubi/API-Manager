@@ -471,7 +471,7 @@ const Admin = () => {
       type="button"
       onClick={() => handleRemoveFormField(index, "files", fileIndex)}
       className="text-red-500 hover:text-red-700"
-    >
+    > 
       <FaTrashAlt className="w-5 h-5" />
     </button>
   </div>
