@@ -20,8 +20,7 @@ const Login = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent form submission from reloading the page
-
+    e.preventDefault();
     try {
       const response = await fetch('http://localhost:8080/auth/login', {
         method: 'POST',
@@ -34,7 +33,6 @@ const Login = () => {
       if (!response.ok) {
         throw new Error('Login failed. Please check your credentials.');
       }
-
       const data = await response.json(); // Assuming the response has a JSON structure
       const token = data.token; // Adjust based on your backend response structure
 
