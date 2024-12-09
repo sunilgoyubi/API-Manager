@@ -195,13 +195,18 @@ const Admin = () => {
   };
   
   const handleAddFormField = (index, type) => {
-    console.log("index",index);
     setApiData((prevData) => {
       const updatedEndpoints = [...prevData.endpoints];
       if (type === "formData") {
-        updatedEndpoints[index].formData = [...updatedEndpoints[index].formData, { key: "", value: "" }];
+        updatedEndpoints[index] = {
+          ...updatedEndpoints[index],
+          formData: [...updatedEndpoints[index].formData, { key: "", value: "" }],
+        };
       } else if (type === "files") {
-        updatedEndpoints[index].files = [...updatedEndpoints[index].files, { file: null }];
+        updatedEndpoints[index] = {
+          ...updatedEndpoints[index],
+          files: [...updatedEndpoints[index].files, { key: "", file: null }],
+        };
       }
       return { ...prevData, endpoints: updatedEndpoints };
     });
@@ -428,32 +433,50 @@ const Admin = () => {
 
    
 
-    {/* File Upload for Image */}
-    {endpoint.files.map((fileField, fileIndex) => (
-      <div key={fileIndex} className="flex space-x-4 mb-4">
-        <div className="w-full">
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            File Upload (Image)
-          </label>
-          <input
-            type="file"
-            onChange={(e) =>
-              handleEndpointChange(index, "files", fileIndex, "file", e.target.files[0])
-            }
-            className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#1E2737] focus:border-[#1E2737]"
-          />
-        </div>
+    {/* File Upload Section */}
+{endpoint.files.map((fileField, fileIndex) => (
+  <div key={fileIndex} className="flex space-x-4 mb-4">
+    {/* Key Input for File */}
+    <div className="w-full">
+      <label className="block text-sm font-medium text-slate-700 mb-1">
+        File Key
+      </label>
+      <input
+        type="text"
+        value={fileField.key || ""}
+        onChange={(e) =>
+          handleFormChange(index, "files", fileIndex, "key", e.target.value)
+        }
+        className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#1E2737] focus:border-[#1E2737]"
+        placeholder="File Key"
+      />
+    </div>
 
-        <button
-          type="button"
-          onClick={() => handleRemoveFormField(index, "files", fileIndex)}
-          className="text-red-500 hover:text-red-700"
-        >
-           <FaTrashAlt className="w-5 h-5" />
-        </button>
-      </div>
-    ))}
-      
+    {/* File Input */}
+    <div className="w-full">
+      <label className="block text-sm font-medium text-slate-700 mb-1">
+        File Upload
+      </label>
+      <input
+        type="file"
+        onChange={(e) =>
+          handleFormChange(index, "files", fileIndex, "file", e.target.files[0])
+        }
+        className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#1E2737] focus:border-[#1E2737]"
+      />
+    </div>
+
+    {/* Remove File Button */}
+    <button
+      type="button"
+      onClick={() => handleRemoveFormField(index, "files", fileIndex)}
+      className="text-red-500 hover:text-red-700"
+    >
+      <FaTrashAlt className="w-5 h-5" />
+    </button>
+  </div>
+))}
+
       <div className="flex gap-5">
       <button
       type="button"
