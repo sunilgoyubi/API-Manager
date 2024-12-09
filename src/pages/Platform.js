@@ -73,9 +73,9 @@ const Platform = () => {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slate-50">
         <div className="animate-pulse flex items-center space-x-2">
-          <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-          <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-          <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+          <div className="w-3 h-3 bg-[#1E2737] rounded-full animate-bounce"></div>
+          <div className="w-3 h-3 bg-[#1E2737] rounded-full animate-bounce [animation-delay:0.2s]"></div>
+          <div className="w-3 h-3 bg-[#1E2737] rounded-full animate-bounce [animation-delay:0.4s]"></div>
         </div>
       </div>
     );
@@ -100,7 +100,7 @@ const Platform = () => {
               placeholder="Search APIs by name..."
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white shadow-sm"
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1E2737] focus:border-[#1E2737] transition-all bg-white shadow-sm"
             />
           </div>
         </div>

@@ -58,7 +58,7 @@ const Login = () => {
             <label htmlFor="email" className="block text-left text-gray-700 mb-2">
               Email:
             </label>
-            <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+            <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-[#1E2737]">
               <MdOutlineMail className="w-5 h-5 ml-2" />
               <input
                 type="email"
@@ -78,7 +78,7 @@ const Login = () => {
             <label htmlFor="password" className="block text-left text-gray-700 mb-2">
               Password:
             </label>
-            <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+            <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-[#1E2737]">
               <RiLockPasswordLine className="w-5 h-5 ml-2" />
               <input
                 type={passwordVisible ? 'text' : 'password'}
@@ -107,7 +107,7 @@ const Login = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            className="w-full py-2 bg-[#FD7149] text-white rounded-md hover:bg-[#e76743] transition"
           >
             Login
           </button>
@@ -118,7 +118,7 @@ const Login = () => {
           <span className="text-gray-600">Don't have an account? </span>
           <button
             onClick={handleSignup}
-            className="text-blue-600 hover:underline transition"
+            className="text-[#FD7149] hover:underline transition"
           >
             Signup
           </button>
