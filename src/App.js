@@ -8,6 +8,7 @@ import Login from "./components/Login.jsx";
 import SignUp from "./components/SignUp.jsx";
 import ApiDetails from "./pages/ApiDetails.js";
 import EditApiPage from "./pages/EditApiPage.js";
+import ProtectedRoute from "./components/ProtectedRoute"; // Import the ProtectedRoute component
 
 function App() {
   return (
@@ -15,23 +16,51 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            {/* Home Route */}
-            {/* <Route path="/" element={<Home />} /> */}
+            {/* Public Routes */}
             <Route path="/" element={<Login />} />
-
             <Route path="/signup" element={<SignUp />} />
 
-           
-            <Route path="/admin" element={<Admin />} />
-
-            {/* Platform Route */}
-            <Route path="/platform" element={<Platform />} />
-
-          
-         <Route path="/api-details/:apiName" element={<ApiDetails />} />
-         <Route path="/home" element={<Home />} />
-         <Route path="/admin/update/:id" element={<EditApiPage />} />
-      
+            {/* Protected Routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/platform"
+              element={
+                <ProtectedRoute>
+                  <Platform />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/api-details/:apiName"
+              element={
+                <ProtectedRoute>
+                  <ApiDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/update/:id"
+              element={
+                <ProtectedRoute>
+                  <EditApiPage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
       </Router>
