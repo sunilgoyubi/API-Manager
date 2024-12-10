@@ -100,6 +100,51 @@ const ApiDetails = () => {
     }
   };
 
+  const formatFormData = (formData) => {
+    if (!formData) return "";
+    try {
+      const parsedData = typeof formData === "string" ? JSON.parse(formData) : formData;
+      return parsedData
+        .map(({ key, value }) => `${key}: ${value}`)
+        .join("\n");
+    } catch (e) {
+      console.error("Error parsing form data:", e);
+      return "Invalid form data";
+    }
+  };
+
+  const formatParams = (params) => {
+    if (!params) return [];
+    try {
+      const parsedParams = typeof params === "string" ? JSON.parse(params) : params;
+      return Object.entries(parsedParams).map(([key, value]) => ({ key, value }));
+    } catch (e) {
+      console.error("Error parsing params:", e);
+      return [];
+    }
+  };
+
+  // Function to handle displaying the body content depending on the body type
+  const renderBodyContent = (bodyType, bodyContent) => {
+    if (bodyType === "raw") {
+      return (
+        <pre className="bg-slate-100 p-4 rounded text-sm font-mono">
+          {bodyContent}
+        </pre>
+      );
+    }
+
+    if (bodyType === "form") {
+      return (
+        <pre className="bg-slate-100 p-4 rounded text-sm font-mono">
+          {formatFormData(bodyContent)}
+        </pre>
+      );
+    }
+
+    return <div className="text-sm text-slate-500">No body content available</div>;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slate-50">
@@ -141,7 +186,6 @@ const ApiDetails = () => {
             onClick={() => handleEditClick(apiDetails[0].id)}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
-            <Edit className="w-5 h-5 mr-2" />
             Edit API
           </button>
         </div>
@@ -201,101 +245,97 @@ const ApiDetails = () => {
                           {apiDetails[0].baseUri + endpoint.endUri}
                         </code>
                         <button
-                          onClick={() =>
-                            copyToClipboard(apiDetails[0].baseUri + endpoint.endUri)
-                          }
+                          onClick={() => copyToClipboard(apiDetails[0].baseUri + endpoint.endUri)}
                           className="p-1 hover:bg-slate-100 rounded"
                           title="Copy to clipboard"
                         >
                           <Copy className="w-4 h-4 text-slate-500" />
                         </button>
-                        <a
-                          href={apiDetails[0].baseUri + endpoint.endUri}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1 hover:bg-slate-100 rounded"
-                          title="Open in new tab"
-                        >
-                          <ExternalLink className="w-4 h-4 text-slate-500" />
-                        </a>
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="text-sm font-medium text-slate-700">Headers</h3>
-                      <div className="mt-2 overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-200">
-                          <thead className="bg-slate-50">
-                            <tr>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                Header
-                              </th>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                Value
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-slate-200">
-                            {Object.entries(endpoint.headers || {}).map(
-                              ([key, value], idx) => (
-                                <tr key={idx}>
-                                  <td className="px-4 py-2 text-sm font-mono text-slate-600">
-                                    {key}
-                                  </td>
-                                  <td className="px-4 py-2 text-sm font-mono text-slate-600">
-                                    {value}
-                                  </td>
-                                </tr>
-                              )
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {endpoint.bodyContent && (
+                    {/* Display Headers */}
+                    {endpoint.headers && (
                       <div>
-                        <h3 className="text-sm font-medium text-slate-700">Body Content</h3>
-                        <div className="mt-1 text-sm font-mono text-slate-600">
-                          <pre>{endpoint.bodyContent}</pre>
+                        <h3 className="text-sm font-medium text-slate-700">Headers</h3>
+                        <div className="mt-2 text-sm font-mono text-slate-600">
+                          {Object.entries(endpoint.headers).map(([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="text-slate-700">{key}</span>
+                              <span className="text-slate-500">{value}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
 
+                    {/* Display Params */}
+                    {endpoint.params && (
+                      <div>
+                        <h3 className="text-sm font-medium text-slate-700">Params</h3>
+                        <div className="mt-2 text-sm font-mono text-slate-600">
+                          {formatParams(endpoint.params).map((param) => (
+                            <div key={param.key} className="flex justify-between">
+                              <span className="text-slate-700">{param.key}</span>
+                              <span className="text-slate-500">{param.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Display Body Type */}
                     {endpoint.bodyType && (
                       <div>
                         <h3 className="text-sm font-medium text-slate-700">Body Type</h3>
-                        <div className="mt-1 text-sm font-mono text-slate-600">
+                        <div className="mt-2 text-sm font-mono text-slate-600">
                           {endpoint.bodyType}
                         </div>
                       </div>
                     )}
 
+                    {/* Display Body Content */}
+                    {endpoint.bodyContent && (
+                      <div>
+                        <h3 className="text-sm font-medium text-slate-700">Body Content</h3>
+                        {renderBodyContent(endpoint.bodyType, endpoint.bodyContent)}
+                      </div>
+                    )}
+
                     {/* Test Request Button */}
-                    <div>
+                    <div className="mt-4 flex justify-start space-x-4">
                       <button
                         onClick={() => handleTestRequest(endpoint, index)}
-                        className="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
                       >
                         Test Request
                       </button>
+                    </div>
 
-                      {/* Display Response or Error */}
-                      {responses[index] && (
-                        <div className="mt-4">
-                          <h3 className="text-sm font-medium text-slate-700">Response:</h3>
-                          {responses[index].success ? (
-                            <pre className="mt-2 bg-slate-100 px-2 py-1 rounded text-sm font-mono text-slate-600">
+                    {/* Test Result */}
+                    {responses[index] && (
+                      <div
+                        className={`mt-4 p-4 rounded ${
+                          responses[index].success
+                            ? "bg-emerald-50 text-emerald-800"
+                            : "bg-red-50 text-red-800"
+                        }`}
+                      >
+                        {responses[index].success ? (
+                          <div>
+                            <h4 className="font-medium">Response Data:</h4>
+                            <pre className="bg-slate-100 p-4 rounded text-sm font-mono">
                               {JSON.stringify(responses[index].data, null, 2)}
                             </pre>
-                          ) : (
-                            <div className="text-red-600 text-sm mt-2">
-                              {responses[index].error}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <h4 className="font-medium">Error:</h4>
+                            <p>{responses[index].error}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -306,5 +346,6 @@ const ApiDetails = () => {
     </div>
   );
 };
+
 
 export default ApiDetails;

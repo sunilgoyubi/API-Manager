@@ -129,19 +129,45 @@ const Admin = () => {
       const payload = {
         name: apiData.name,
         baseUri: apiData.baseUrl,
-        endUris: apiData.endpoints.map(({ expanded, ...endpoint }) => ({
-          endUri: endpoint.endpoint,
-          method: endpoint.method,
-          headers: endpoint.headers.reduce((acc, header) => {
-            if (header.key && header.value) {
-              acc[header.key] = header.value;
+        endUris: apiData.endpoints.map(({ expanded, formData, files, params = [], ...endpoint }) => {
+          let bodyContent = null;
+  
+          if (endpoint.bodyType === "form") {
+            // Convert formData to the desired bodyContent structure
+            const formDataContent = formData.map(({ key, value }) => ({ key, value }));
+  
+            // Include files if any
+            if (files.length > 0) {
+              formDataContent.push(
+                ...files.map(({ key, file }) => ({ key, value: file?.name || "file" }))
+              );
             }
-            return acc;
-          }, {}),
-          bodyType: endpoint.bodyType || null,
-          contentType: endpoint.contentType || "application/json",
-          bodyContent: endpoint.bodyContent || null,
-        }))
+  
+            // Stringify the form data
+            bodyContent = JSON.stringify(formDataContent);
+          } else if (endpoint.bodyType === "raw") {
+            // For raw body type, ensure it's a string
+            bodyContent = endpoint.bodyContent || null;
+          }
+  
+          // Convert params to key-value pair string representation
+          const formattedParams = params.map(param => `"${param.key}":"${param.value}"`).join(',');
+  
+          return {
+            endUri: endpoint.endpoint,
+            method: endpoint.method,
+            headers: endpoint.headers.reduce((acc, header) => {
+              if (header.key && header.value) {
+                acc[header.key] = header.value;
+              }
+              return acc;
+            }, {}),
+            bodyType: endpoint.bodyType || null,
+            contentType: endpoint.contentType || "application/json",
+            bodyContent, // Ensure this is a string
+            params: `{${formattedParams}}`, // Send params as a string key-value pair format
+          };
+        }),
       };
   
       console.log("Payload being sent:", payload);
@@ -155,15 +181,31 @@ const Admin = () => {
         body: JSON.stringify(payload),
       });
   
+      // Check if the response is empty
+      if (response.status === 204) {
+        setSuccessMessage("API successfully created, but no response body.");
+        return;
+      }
+  
+      // Check for errors in response and log the response body
       if (!response.ok) {
+        const errorText = await response.text(); // Get raw text in case of no JSON
+        console.error("Error response body:", errorText);
         throw new Error("Failed to create API.");
       }
   
+      // Try parsing the response as JSON
+      const responseData = await response.json();
+      console.log("Response:", responseData);
       setSuccessMessage("API successfully created!");
     } catch (err) {
       setError(err.message || "An error occurred while creating the API.");
     }
   };
+  
+
+  
+  
   
   // params handle
   const handleParamChange = (endpointIndex, paramIndex, field, value) => {
